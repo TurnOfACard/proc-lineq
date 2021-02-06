@@ -1,7 +1,7 @@
 use proc_macro::TokenStream;
 use syn::{parse_macro_input, DeriveInput};
 use quote::{format_ident, quote};
-use proc_linalg::Variables;
+use proc_lineq::ClosureInverter;
 
 #[proc_macro_derive(ClosureInverter, attributes(invert))]
 pub fn is_closure_inverter(tokens: TokenStream) -> TokenStream {
@@ -17,8 +17,8 @@ pub fn is_closure_inverter(tokens: TokenStream) -> TokenStream {
                 if let syn::NestedMeta::Lit(syn::Lit::Str(ref ident)) = lit {
                     let closure = ident.parse::<syn::ExprClosure>().unwrap();
                     // can only solve for "a". Needs to expand macro to allow for user defined identifiers
-                    let eq = Variables::new(format_ident!("a"), format_ident!("b"));
-                    let result = eq.parse_closure(&closure).unwrap();
+                    let eq = ClosureInverter::new(format_ident!("a"), format_ident!("b"));
+                    let result = eq.solve(&closure).unwrap();
                     let return_stream = quote!(
                         impl #struct_ident {
                             fn calculate(value: usize) -> usize {

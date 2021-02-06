@@ -1,5 +1,5 @@
 [package]
-name = "proc-linalg-derive"
+name = "proc-lineq-derive"
 version = "0.1.0"
 authors = ["Ryan Jennings <ryan@ryanj.net>"]
 edition = "2018"
@@ -10,7 +10,7 @@ edition = "2018"
 proc-macro = true
 
 [dependencies]
-proc-linalg = { path = ".."}
+proc-lineq = { path = ".."}
 proc-macro2 = "1.0"
 quote = "1.0"
 syn = { version = "1.0", features = ["full", "extra-traits"] }

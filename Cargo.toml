@@ -1,5 +1,5 @@
 [package]
-name = "proc-linalg"
+name = "proc-lineq"
 version = "0.1.0"
 authors = ["Ryan Jennings <ryan@ryanj.net>"]
 edition = "2018"
@@ -13,4 +13,4 @@ thiserror = "1.0"
 
 [dev-dependencies]
 quote = "1.0"
-proc-linalg-derive = { path = "proc-linalg-derive"}
+proc-lineq-derive = { path = "proc-lineq-derive"}

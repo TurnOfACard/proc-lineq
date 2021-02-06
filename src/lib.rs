@@ -1,8 +1,6 @@
 use proc_macro2::{Ident, Span};
 use syn::spanned::Spanned;
-use syn::{
-    parse_quote, BinOp, Expr, ExprBinary, ExprClosure, ExprPath, Token,
-};
+use syn::{parse_quote, BinOp, Expr, ExprBinary, ExprClosure, ExprPath, Token};
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -21,14 +19,14 @@ pub enum ParseError {
 
 /// Stores the variables and the current state of the calculation
 ///
-/// Call [`parse_closure`] to build an output expression.
-pub struct Variables {
+/// Call [`solve`] to build an output expression.
+pub struct ClosureInverter {
     target_expr: Box<Expr>,
     solve_for: Ident,
     target_ident: Ident,
 }
 
-impl Variables {
+impl ClosureInverter {
     pub fn new(solve_for: Ident, target_ident: Ident) -> Self {
         Self {
             target_expr: Box::new(Expr::Path(ExprPath {
@@ -51,7 +49,7 @@ impl Variables {
     }
 
     /// Parses a closure returning the inverse if possible.
-    pub fn parse_closure(mut self, closure: &ExprClosure) -> Result<ExprClosure, ParseError> {
+    pub fn solve(mut self, closure: &ExprClosure) -> Result<ExprClosure, ParseError> {
         if Self::validate_expr(&closure.body) {
             self.parse_expr(*closure.body.clone())?;
 
@@ -80,7 +78,7 @@ impl Variables {
                         self.target_expr = Self::build_expr_binary(
                             Self::parenthesize(target_expr, &inverted_op)?,
                             inverted_op,
-                            b.right.clone()
+                            b.right.clone(),
                         );
                         self.parse_expr(*b.left)
                     }
@@ -89,7 +87,7 @@ impl Variables {
                             self.target_expr = Self::build_expr_binary(
                                 Self::parenthesize(target_expr, &inverted_op)?,
                                 inverted_op,
-                                b.left.clone()
+                                b.left.clone(),
                             );
                             self.parse_expr(*b.right)
                         }
@@ -97,16 +95,14 @@ impl Variables {
                             self.target_expr = Self::build_expr_binary(
                                 b.left.clone(),
                                 b.op,
-                                Self::parenthesize(target_expr, &b.op)?
+                                Self::parenthesize(target_expr, &b.op)?,
                             );
                             self.parse_expr(*b.right)
                         }
                         _ => Err(ParseError::BinOp),
                     },
                     (true, true) => Err(ParseError::Multiple),
-                    (false, false) => {
-                        Err(ParseError::NoSolveFor)
-                    }
+                    (false, false) => Err(ParseError::NoSolveFor),
                 }
             }
             Expr::Path(p) => {
@@ -178,8 +174,7 @@ fn inverse_bin_op(op: &BinOp, dummy_span: &Span) -> Result<BinOp, ParseError> {
 
 #[cfg(test)]
 mod tests {
-
-    use proc_linalg_derive::ClosureInverter;
+    use proc_lineq_derive::ClosureInverter;
 
     // All tests currently test usize types only. Can be expanded in the future.
 

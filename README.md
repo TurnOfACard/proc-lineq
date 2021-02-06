@@ -1,5 +1,5 @@
-# proc-linalg
-Solves a basic linear equation for a variable, given a `syn::ExprClosure`, for use within a rust procedural macro.
+# proc-lineq
+Solves a basic linear equation for a variable, given a `syn::ExprClosure`, for use within a rust procedural macro. proc-lineq stands for "proc-macro linear equation".
 
 The intent of this crate is to allow a procedural macro to solve a linear equation using the basic mathematical operators (add, subtract, divide multiply).
 
@@ -36,11 +36,11 @@ Within the procedural macro, first build a `syn::ExprClosure`. Then, build a `Va
 
 ```rust
 use quote::format_ident;
-use proc_linalg::Variables;
+use proc_lineq::Variables;
 
 let closure: ExprClosure = syn::parse_quote!( || 5 * x + 2 );
-let mut eq = Variables::new(format_ident!("x"), format_ident!("y"));
+let mut eq = ClosureInverter::new(format_ident!("x"), format_ident!("y"));
 let solved_closure = eq.solve(closure);
 ```
 
-An example of a simple implementation can be found in the [proc-linalg-derive](./proc-linalg-derive/) folder.
+An example of a simple implementation can be found in the [proc-lineq-derive](proc-lineq-derive/) folder.
