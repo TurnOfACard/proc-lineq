@@ -1,3 +1,5 @@
+#![warn(clippy::panic, clippy::str_to_string, clippy::panicking_unwrap)]
+
 use proc_lineq::ClosureInverter;
 use proc_macro::TokenStream;
 use quote::{format_ident, quote};
@@ -31,9 +33,9 @@ pub fn is_closure_inverter(tokens: TokenStream) -> TokenStream {
                 _ => unreachable!(),
             }
         } else {
-            panic!("Only can derive with 'invert_me' attribute")
+            quote!(compile_error!("ClosureInverter requires a single invert attribute");).into()
         }
     } else {
-        panic!("Requires a single attribute only");
+        quote!(compile_error!("ClosureInverter requires a single invert attribute");).into()
     }
 }

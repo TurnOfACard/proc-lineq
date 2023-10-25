@@ -1,3 +1,5 @@
+#![warn(clippy::panic, clippy::str_to_string, clippy::panicking_unwrap)]
+
 use proc_macro2::{Ident, Span};
 use syn::spanned::Spanned;
 use syn::{parse_quote, BinOp, Expr, ExprBinary, ExprClosure, ExprPath, Token};
@@ -42,7 +44,7 @@ impl ClosureInverter {
     /// Returns true if is a valid expression to invert.
     fn validate_expr(e: &Expr) -> bool {
         match e {
-            Expr::Binary(b) => Self::validate_expr(&*b.left) && Self::validate_expr(&*b.right),
+            Expr::Binary(b) => Self::validate_expr(&b.left) && Self::validate_expr(&b.right),
             Expr::Lit(_) | Expr::Path(_) => true,
             _ => false,
         }
@@ -67,8 +69,8 @@ impl ClosureInverter {
         let e_span = e.span();
         match e {
             Expr::Binary(b) => {
-                let left = Self::check_contains_target(&*b.left, &self.solve_for);
-                let right = Self::check_contains_target(&*b.right, &self.solve_for);
+                let left = Self::check_contains_target(&b.left, &self.solve_for);
+                let right = Self::check_contains_target(&b.right, &self.solve_for);
                 let inverted_op = inverse_bin_op(&b.op, &e_span)?;
 
                 // Parenthesize expression
@@ -130,8 +132,8 @@ impl ClosureInverter {
     fn check_contains_target(e: &Expr, target: &Ident) -> bool {
         match e {
             Expr::Binary(b) => {
-                Self::check_contains_target(&*b.left, target)
-                    || Self::check_contains_target(&*b.right, target)
+                Self::check_contains_target(&b.left, target)
+                    || Self::check_contains_target(&b.right, target)
             }
             Expr::Lit(_) => false,
             Expr::Paren(_) => unimplemented!(),
